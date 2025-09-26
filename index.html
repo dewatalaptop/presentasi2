@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Presentasi HTML Lokal</title>
+    <title>Presentasi HTML Lokal (Fixed)</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/material-darker.min.css">
@@ -172,6 +172,7 @@
             flex-direction: column;
             transform: scale(0.9);
             transition: transform 0.3s ease;
+            overflow-y: auto; /* <-- PERBAIKAN DI SINI */
         }
 
         .modal-overlay.visible .modal-container {
@@ -212,6 +213,8 @@
             border: 1px solid var(--border-color);
             border-radius: 8px;
             overflow: hidden;
+            /* Memberikan tinggi minimum agar tidak terlalu gepeng di layar pendek */
+            min-height: 200px; 
         }
 
         .CodeMirror {
@@ -466,4 +469,3 @@
     </script>
 </body>
 </html>
-
