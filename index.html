@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Dashboard Presentasi — Perbaikan Save Robust</title>
 
-<!-- CSS minimal + theme -->
 <style>
   :root{
     --bg:#111;
@@ -21,14 +20,17 @@
   .container{max-width:1100px;margin:0 auto;padding:1rem;}
   header{display:flex;justify-content:space-between;align-items:center;gap:.5rem;border-bottom:1px solid var(--border);padding-bottom:.75rem;margin-bottom:1rem}
   h1{font-size:1.15rem}
-  .btn{background:var(--primary);color:white;border:0;padding:.5rem .75rem;border-radius:8px;cursor:pointer}
+  .btn{background:var(--primary);color:white;border:0;padding:.5rem .75rem;border-radius:8px;cursor:pointer;transition: background-color .15s, opacity .15s}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
   .btn-secondary{background:#444}
+  .btn-danger{background:var(--danger)}
+
   #presentations-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem}
-  .card{background:var(--surface);padding:.9rem;border-radius:10px;border:1px solid var(--border);display:flex;flex-direction:column;min-height:110px}
+  .card{background:var(--surface);padding:.9rem;border-radius:10px;border:1px solid var(--border);display:flex;flex-direction:column;min-height:120px}
   .card h3{margin:0 0 .25rem 0;font-size:1rem}
-  .card p{margin:0;color:var(--muted);font-size:.85rem}
-  .actions{display:flex;gap:.5rem;margin-top:.6rem}
-  .actions .btn{flex:1;padding:.45rem}
+  .card p{margin:0;color:var(--muted);font-size:.85rem; flex-grow: 1;}
+  .actions{display:flex;gap:.5rem;margin-top:.75rem; justify-content:flex-end;}
+  .actions .btn{padding:.45rem}
 
   /* Modal */
   .overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;justify-content:center;align-items:center;padding:12px;visibility:hidden;opacity:0;transition:.18s}
@@ -37,18 +39,24 @@
   .modal-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border)}
   .modal-body{padding:12px 14px;display:flex;flex-direction:column;gap:10px;flex:1;min-height:0;overflow:auto}
   .modal-footer{display:flex;gap:.5rem;justify-content:flex-end;padding:10px 14px;border-top:1px solid var(--border);background:linear-gradient(to top, rgba(0,0,0,.03), transparent)}
+  
+  /* PERBAIKAN MOBILE SCROLL: Mengatur <form> agar fleksibel dengan benar di dalam .modal */
+  #form {
+    display: flex;
+    flex-direction: column;
+    flex: 1; /* Mengisi ruang yang tersedia antara header dan footer modal */
+    min-height: 0; /* Krusial agar flex item bisa menyusut */
+  }
+
   .form-group label{display:block;margin-bottom:6px;font-weight:600}
   input[type="text"]{width:100%;padding:.6rem;border-radius:8px;border:1px solid var(--border);background:#111;color:var(--text)}
-  /* editor container flexible and scrollable */
   .editor-wrapper{flex:1;min-height:160px;border:1px solid var(--border);border-radius:8px;overflow:auto}
-  /* simple toast */
   .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#0b8b3a;color:#fff;padding:.5rem .9rem;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.5);display:none}
   .toast.show{display:block}
   @media(max-width:600px){
     .modal-footer{flex-direction:column;align-items:stretch}
     .modal{max-width:100%}
   }
-  /* minimal CodeMirror height rule */
   .CodeMirror{height:100%}
 </style>
 </head>
@@ -62,26 +70,21 @@
     </header>
 
     <main id="presentations-grid" aria-live="polite">
-      <!-- cards -->
-    </main>
+      </main>
   </div>
 
-  <!-- template -->
   <template id="tpl-card">
     <article class="card" tabindex="0">
-      <div>
-        <h3 class="title"></h3>
-        <p class="date"></p>
-      </div>
+      <h3 class="title"></h3>
+      <p class="date"></p>
       <div class="actions">
         <button data-action="edit" class="btn-secondary btn" type="button">Edit</button>
-        <button data-action="view" class="btn btn-primary btn" type="button">Buka</button>
+        <button data-action="view" class="btn btn-primary" type="button">Buka</button>
         <button data-action="delete" class="btn-danger btn" type="button">Hapus</button>
       </div>
     </article>
   </template>
 
-  <!-- modal -->
   <div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal" role="document">
       <div class="modal-header">
@@ -91,7 +94,7 @@
         </div>
       </div>
 
-      <form id="form" style="display:flex;flex-direction:column;height:100%">
+      <form id="form">
         <input type="hidden" id="presentation-id" value="">
         <div class="modal-body">
           <div class="form-group">
@@ -125,9 +128,10 @@
   // -------------------------
   const STORAGE_KEY = 'html_presentations_safe_v1';
   let presentations = [];
-  let editor = null;           // CodeMirror instance OR null
+  let editor = null;
   let codemirrorLoaded = false;
   const CDN_BASE = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15';
+  let lastFocusedElement = null;
 
   // -------------------------
   // DOM refs
@@ -140,11 +144,11 @@
   const form = document.getElementById('form');
   const titleInput = document.getElementById('title');
   const codeTextarea = document.getElementById('code');
-  const editorWrapper = document.getElementById('editor-wrapper');
   const presentationIdInput = document.getElementById('presentation-id');
   const toast = document.getElementById('toast');
   const btnCancel = document.getElementById('btn-cancel');
   const btnDownload = document.getElementById('btn-download');
+  const btnSave = document.getElementById('btn-save');
 
   // -------------------------
   // Utilities
@@ -156,7 +160,6 @@
     setTimeout(()=> toast.classList.remove('show'), t);
   }
 
-  // Safe loader for CSS
   function loadCSS(href){
     return new Promise((resolve,reject)=>{
       const link = document.createElement('link');
@@ -167,19 +170,17 @@
       document.head.appendChild(link);
     });
   }
-  // Safe loader for JS
   function loadScript(src){
     return new Promise((resolve,reject)=>{
       const s = document.createElement('script');
       s.src = src;
-      s.async = false; // preserve order
+      s.async = false;
       s.onload = ()=> resolve();
       s.onerror = ()=> reject(new Error('Script load failed '+src));
       document.head.appendChild(s);
     });
   }
 
-  // Ensure CodeMirror and modes loaded (idempotent)
   async function ensureCodeMirror(){
     if (codemirrorLoaded) return;
     if (window.CodeMirror){
@@ -189,10 +190,8 @@
     }
     try {
       dbg('Loading CodeMirror assets from CDN...');
-      // CSS
       await loadCSS(CDN_BASE + '/codemirror.min.css');
       await loadCSS(CDN_BASE + '/theme/material-darker.min.css');
-      // core + modes + addon
       await loadScript(CDN_BASE + '/codemirror.min.js');
       await loadScript(CDN_BASE + '/mode/xml/xml.min.js');
       await loadScript(CDN_BASE + '/mode/javascript/javascript.min.js');
@@ -204,23 +203,16 @@
     } catch (err) {
       console.warn('Gagal load CodeMirror dari CDN, fallback ke textarea.', err);
       codemirrorLoaded = false;
-      // we continue: editor will remain null and fallback used
     }
   }
 
-  // Initialize editor instance (if codemirror available)
   function initEditorInstance(){
     if (editor) return editor;
     if (window.CodeMirror){
       try {
         editor = CodeMirror.fromTextArea(codeTextarea, {
-          mode: 'htmlmixed',
-          theme: 'material-darker',
-          lineNumbers: true,
-          lineWrapping: true,
-          autoCloseTags: true
+          mode: 'htmlmixed', theme: 'material-darker', lineNumbers: true, lineWrapping: true, autoCloseTags: true
         });
-        // make editor fill wrapper
         editor.getWrapperElement().style.height = '100%';
         setTimeout(()=>{ try{ editor.refresh(); }catch(e){} },80);
         dbg('Editor instance created');
@@ -235,22 +227,18 @@
     return editor;
   }
 
-  // Get content safely from editor or textarea
   function getEditorContent(){
     try {
       if (editor && typeof editor.getValue === 'function'){
         return editor.getValue();
-      } else {
-        return codeTextarea.value;
       }
+      return codeTextarea.value;
     } catch (err) {
       console.error('Error when getting editor content:', err);
-      // fallback to textarea
       return codeTextarea.value || '';
     }
   }
 
-  // Set content safely
   function setEditorContent(value){
     try {
       if (editor && typeof editor.setValue === 'function'){
@@ -273,7 +261,6 @@
       const raw = localStorage.getItem(STORAGE_KEY);
       presentations = raw ? JSON.parse(raw) : [];
       if (!Array.isArray(presentations)) presentations = [];
-      // normalize numbers
       presentations = presentations.map(p => ({
         id: String(p.id || `pres-${Date.now()}-${Math.random().toString(36).slice(2)}`),
         title: String(p.title || 'Tanpa Judul'),
@@ -306,11 +293,16 @@
       return;
     }
     presentations.sort((a,b)=>Number(b.lastModified)-Number(a.lastModified));
+    const dateFormatter = new Intl.DateTimeFormat('id-ID', {
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    });
+
     presentations.forEach(p=>{
       const c = tplCard.content.cloneNode(true);
       const article = c.querySelector('.card');
       c.querySelector('.title').textContent = p.title;
-      c.querySelector('.date').textContent = 'Diperbarui: ' + new Date(Number(p.lastModified)).toLocaleString();
+      c.querySelector('.date').textContent = 'Diperbarui: ' + dateFormatter.format(new Date(Number(p.lastModified)));
       article.dataset.id = p.id;
       grid.appendChild(c);
     });
@@ -320,14 +312,14 @@
   // Modal control
   // -------------------------
   async function openModal(p=null){
-    // load CodeMirror assets (non-blocking if CDN fails)
+    lastFocusedElement = document.activeElement;
+
     await ensureCodeMirror();
     initEditorInstance();
 
-    // reset form
     form.reset();
     presentationIdInput.value = '';
-    setEditorContent(''); // clear
+    setEditorContent('');
 
     if (p){
       document.getElementById('modal-title').textContent = 'Edit Presentasi';
@@ -349,34 +341,37 @@
 
     overlay.classList.add('visible');
     overlay.setAttribute('aria-hidden','false');
-
-    // allow editor to refresh (mobile)
-    setTimeout(()=>{ try{ if (editor && editor.refresh) editor.refresh(); }catch(e){} }, 150);
-
-    // focus judul
-    setTimeout(()=> titleInput.focus(), 80);
-    // disable page scroll behind (but modal remains scrollable)
     document.documentElement.style.overflow = 'hidden';
+
+    setTimeout(()=>{ if (editor && editor.refresh) editor.refresh(); }, 150);
+    setTimeout(()=> titleInput.focus(), 80);
   }
 
   function closeModal(){
     overlay.classList.remove('visible');
     overlay.setAttribute('aria-hidden','true');
     document.documentElement.style.overflow = '';
+    if (lastFocusedElement) {
+      try {
+        lastFocusedElement.focus();
+      } catch (e) {
+        console.warn('Gagal mengembalikan fokus:', e);
+      }
+    }
   }
 
   // -------------------------
   // Handlers
   // -------------------------
-  // Grid actions (delegation)
   grid.addEventListener('click', async (ev) => {
-    const btn = ev.target.closest('button');
+    const btn = ev.target.closest('button[data-action]');
     if (!btn) return;
     const card = ev.target.closest('.card');
     if (!card) return;
     const id = card.dataset.id;
     const p = presentations.find(x => String(x.id) === String(id));
     if (!p) return;
+
     const action = btn.dataset.action;
     if (action === 'edit') {
       await openModal(p);
@@ -384,6 +379,7 @@
       if (confirm(`Hapus "${p.title}" ?`)){
         presentations = presentations.filter(x => String(x.id) !== String(id));
         saveToStorage(); render();
+        showToast(`"${p.title}" telah dihapus.`);
       }
     } else if (action === 'view') {
       try {
@@ -393,11 +389,9 @@
         if (nw){
           try{ nw.opener = null; } catch(e){}
           nw.location = url;
-          // revoke later
           const t = setInterval(()=>{ if (nw.closed){ URL.revokeObjectURL(url); clearInterval(t); } }, 500);
           setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} }, 120000);
         } else {
-          // popup blocked: open same tab
           if (confirm('Popup diblokir. Buka di tab saat ini? (Anda akan meninggalkan dashboard)')) location.href = url;
           else URL.revokeObjectURL(url);
         }
@@ -408,15 +402,11 @@
     }
   });
 
-  // open new
   btnNew.addEventListener('click', ()=> openModal());
-
-  // close handlers
   closeBtn.addEventListener('click', closeModal);
   btnCancel.addEventListener('click', closeModal);
   overlay.addEventListener('click', (ev)=> { if (ev.target === overlay) closeModal(); });
 
-  // download current HTML
   btnDownload.addEventListener('click', ()=> {
     try {
       const html = getEditorContent();
@@ -425,7 +415,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = (titleInput.value || 'presentation') + '.html';
+      a.download = (titleInput.value.trim().replace(/[^a-z0-9]/gi, '_') || 'presentation') + '.html';
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(()=>{ try{ URL.revokeObjectURL(url);}catch(e){} }, 1000);
     } catch (err) {
@@ -434,10 +424,13 @@
     }
   });
 
-  // Submit (Simpan) — robust with try/catch
   form.addEventListener('submit', (ev) => {
     ev.preventDefault();
     dbg('submit handler triggered');
+    
+    btnSave.disabled = true;
+    btnSave.textContent = 'Menyimpan...';
+
     try {
       const id = presentationIdInput.value && String(presentationIdInput.value);
       const title = (titleInput.value || '').trim();
@@ -447,7 +440,6 @@
         titleInput.focus();
         return;
       }
-      // minimal HTML check: if missing </html>, warn
       if (!/<\/\s*html\s*>/i.test(html)){
         if (!confirm('Konten tampak bukan dokumen HTML lengkap (tidak menemukan </html>). Tetap simpan?')) return;
       }
@@ -462,7 +454,8 @@
           presentations.push({ id, title, html, createdAt: now, lastModified: now });
         }
       } else {
-        presentations.push({ id: 'pres-' + now + '-' + Math.random().toString(36).slice(2), title, html, createdAt: now, lastModified: now });
+        const newId = 'pres-' + now + '-' + Math.random().toString(36).slice(2);
+        presentations.push({ id: newId, title, html, createdAt: now, lastModified: now });
       }
       saveToStorage();
       render();
@@ -471,26 +464,21 @@
     } catch (err) {
       console.error('Error in submit handler', err);
       alert('Terjadi kesalahan saat menyimpan. Periksa console untuk detail.');
+    } finally {
+      btnSave.disabled = false;
+      btnSave.textContent = 'Simpan';
     }
   });
 
-  // keyboard ESC close
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (overlay.classList.contains('visible')) closeModal(); } });
 
   // -------------------------
   // Init
   // -------------------------
-  (async function init(){
+  (function init(){
     loadFromStorage();
     render();
-    // Try to pre-load CodeMirror but do not fail if blocked
-    ensureCodeMirror().then(()=> {
-      try {
-        initEditorInstance();
-      } catch(e){
-        dbg('early initEditorInstance failed', e);
-      }
-    }).catch(e => { dbg('ensureCodeMirror finished (error or fallback)'); });
+    ensureCodeMirror().catch(e => { dbg('ensureCodeMirror finished (error or fallback)'); });
   })();
 
   // Expose for debugging
