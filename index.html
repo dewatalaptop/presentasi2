@@ -1,281 +1,481 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Presentasi HTML Lokal (Final & Stabil)</title>
-    
-    <!-- CodeMirror -->
+
+    <!-- CodeMirror (v5) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/material-darker.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/xml/xml.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/javascript/javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/css/css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/htmlmixed/htmlmixed.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/closetag.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/xml/xml.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/javascript/javascript.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/css/css.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/closetag.min.js"></script>
 
     <style>
-        :root { --bg-color: #1a1a1a; --surface-color: #242424; --primary-color: #4a90e2; --primary-hover-color: #5aa1f2; --text-color: #e0e0e0; --border-color: #3a3a3a; --danger-color: #e24a4a; --danger-hover-color: #f25a5a; }
+        :root {
+            --bg-color: #1a1a1a;
+            --surface-color: #242424;
+            --primary-color: #4a90e2;
+            --primary-hover-color: #5aa1f2;
+            --text-color: #e0e0e0;
+            --border-color: #3a3a3a;
+            --danger-color: #e24a4a;
+            --danger-hover-color: #f25a5a;
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; }
+        html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; }
         .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
-        header h1 { font-size: 2rem; color: var(--text-color); }
-        .btn { background-color: var(--primary-color); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; }
+        header { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; border-bottom:1px solid var(--border-color); padding-bottom:1rem; gap:1rem; flex-wrap:wrap; }
+        header h1 { font-size: 1.6rem; color: var(--text-color); }
+        .btn { background-color: var(--primary-color); color: white; border: none; padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor:pointer; transition: background-color .18s ease, transform .08s ease; }
         .btn:hover { background-color: var(--primary-hover-color); transform: translateY(-2px); }
         .btn-danger { background-color: var(--danger-color); }
         .btn-danger:hover { background-color: var(--danger-hover-color); }
         .btn-secondary { background-color: #444; }
         .btn-secondary:hover { background-color: #555; }
-        #presentations-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-        .presentation-card { background-color: var(--surface-color); border-radius: 12px; border: 1px solid var(--border-color); padding: 1.5rem; display: flex; flex-direction: column; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .presentation-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-        .card-content { flex-grow: 1; }
-        .card-content h3 { font-size: 1.25rem; margin-bottom: 0.5rem; word-break: break-word; }
-        .card-content p { font-size: 0.9rem; color: #aaa; }
-        .card-actions { margin-top: 1.5rem; display: flex; gap: 0.75rem; border-top: 1px solid var(--border-color); padding-top: 1rem; }
-        .card-actions .btn { flex-grow: 1; padding: 0.5rem 1rem; font-size: 0.9rem; }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; z-index: 1000; }
-        .modal-overlay.visible { opacity: 1; visibility: visible; }
-        .modal-container { background-color: var(--surface-color); padding: 2rem; border-radius: 12px; width: 90%; max-width: 1000px; height: 90vh; display: flex; flex-direction: column; transform: scale(0.9); transition: transform 0.3s ease; overflow-y: auto; }
+        #presentations-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
+        .presentation-card { background-color: var(--surface-color); border-radius: 12px; border:1px solid var(--border-color); padding:1rem; display:flex; flex-direction:column; transition: transform .15s ease, box-shadow .15s ease; min-height:120px; }
+        .presentation-card:hover { transform: translateY(-6px); box-shadow: 0 10px 20px rgba(0,0,0,.25); }
+        .card-content { flex-grow:1; overflow:hidden; }
+        .card-content h3 { font-size:1.05rem; margin-bottom:.35rem; word-break:break-word; }
+        .card-content p { font-size:.85rem; color:#aaa; }
+        .card-actions { margin-top: .9rem; display:flex; gap:.5rem; border-top:1px solid var(--border-color); padding-top:.9rem; }
+        .card-actions .btn { flex:1; padding:.5rem .6rem; font-size:.9rem; }
+        .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background-color: rgba(0,0,0,.7); display:flex; justify-content:center; align-items:center; opacity:0; visibility:hidden; transition: opacity .25s ease, visibility .25s ease; z-index:1000; padding:1rem; }
+        .modal-overlay.visible { opacity:1; visibility:visible; }
+        .modal-container { background-color: var(--surface-color); padding:1rem; border-radius:12px; width: 100%; max-width:1000px; max-height: 90vh; display:flex; flex-direction:column; transform: scale(.96); transition: transform .22s ease; overflow:hidden; }
         .modal-overlay.visible .modal-container { transform: scale(1); }
-        .modal-header { margin-bottom: 1rem; }
-        .modal-header h2 { font-size: 1.5rem; }
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
-        .form-group input { width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border-color); background-color: #333; color: var(--text-color); font-size: 1rem; }
-        .editor-container { flex-grow: 1; position: relative; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; min-height: 200px; }
-        .CodeMirror { height: 100%; font-size: 16px; }
-        .modal-footer { margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem; }
-        #empty-state { text-align: center; padding: 4rem; border: 2px dashed var(--border-color); border-radius: 12px; grid-column: 1 / -1; }
-        #empty-state p { font-size: 1.2rem; color: #aaa; }
+        .modal-header { margin-bottom:.6rem; display:flex; justify-content:space-between; align-items:center; gap:.5rem; }
+        .modal-header h2 { font-size:1.1rem; }
+        .form-group { margin-bottom:.8rem; }
+        .form-group label { display:block; margin-bottom:.4rem; font-weight:600; }
+        .form-group input[type="text"] { width:100%; padding:.6rem; border-radius:8px; border:1px solid var(--border-color); background-color:#333; color:var(--text-color); font-size:.95rem; }
+        .editor-container { flex-grow:1; position:relative; border:1px solid var(--border-color); border-radius:8px; overflow:hidden; min-height:260px; }
+        .CodeMirror { height:100%; font-size:14px; }
+        .modal-footer { margin-top:.8rem; display:flex; justify-content:flex-end; gap:.6rem; }
+        #empty-state { text-align:center; padding:2.5rem; border:2px dashed var(--border-color); border-radius:12px; grid-column:1 / -1; }
+        #empty-state p { font-size:1.02rem; color:#aaa; line-height:1.4; }
+        @media (max-width:520px) {
+            header { padding-bottom:.5rem; }
+            .modal-container { padding:.6rem; }
+        }
     </style>
 </head>
 <body>
-
     <div class="container">
         <header>
             <h1>Presentasi Lokal Anda</h1>
-            <button id="add-new-btn" class="btn">Buat Presentasi Baru</button>
+            <div style="display:flex; gap:.5rem;">
+                <button id="add-new-btn" class="btn" type="button" aria-label="Buat presentasi baru" title="Buat presentasi baru">Buat Presentasi Baru</button>
+                <button id="import-btn" class="btn btn-secondary" type="button" aria-label="Impor dari file" title="Impor presentasi dari file (HTML)">Impor</button>
+            </div>
         </header>
-        <main id="presentations-grid"></main>
+
+        <main id="presentations-grid" aria-live="polite"></main>
     </div>
 
     <template id="presentation-card-template">
-        <div class="presentation-card">
+        <div class="presentation-card" role="article" tabindex="0">
             <div class="card-content">
                 <h3 class="card-title"></h3>
                 <p class="card-date"></p>
             </div>
             <div class="card-actions">
-                <button class="btn btn-secondary" data-action="edit">Edit</button>
-                <button class="btn" data-action="view">Buka</button>
-                <button class="btn btn-danger" data-action="delete">Hapus</button>
+                <button class="btn btn-secondary" type="button" data-action="edit" aria-label="Edit presentasi">Edit</button>
+                <button class="btn" type="button" data-action="view" aria-label="Buka presentasi">Buka</button>
+                <button class="btn btn-danger" type="button" data-action="delete" aria-label="Hapus presentasi">Hapus</button>
             </div>
         </div>
     </template>
 
-    <div id="editor-modal" class="modal-overlay">
-        <div class="modal-container">
+    <div id="editor-modal" class="modal-overlay" aria-hidden="true">
+        <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-title">
             <div class="modal-header">
                 <h2 id="modal-title">Buat Presentasi Baru</h2>
+                <button id="close-modal-btn" class="btn btn-secondary" type="button" aria-label="Tutup modal">Tutup</button>
             </div>
-            <form id="presentation-form" style="display: flex; flex-direction: column; height: 100%;">
-                <input type="hidden" id="presentation-id">
+
+            <form id="presentation-form" style="display:flex; flex-direction:column; height:100%;">
+                <input type="hidden" id="presentation-id" value="">
                 <div class="form-group">
                     <label for="presentation-title">Judul Presentasi</label>
-                    <input type="text" id="presentation-title" required placeholder="Contoh: Laporan Kinerja Q4">
+                    <input type="text" id="presentation-title" required placeholder="Contoh: Laporan Kinerja Q4" autocomplete="off">
                 </div>
-                <div class="form-group" style="flex-grow: 1; display: flex; flex-direction: column;">
+
+                <div class="form-group" style="flex-grow:1; display:flex; flex-direction:column;">
                     <label for="presentation-code">Kode HTML Lengkap</label>
-                    <div class="editor-container">
-                        <textarea id="presentation-code"></textarea>
+                    <div class="editor-container" id="editor-wrapper">
+                        <textarea id="presentation-code" spellcheck="false" autocomplete="off"></textarea>
                     </div>
                 </div>
+
                 <div class="modal-footer">
-                    <button type="button" id="cancel-btn" class="btn btn-secondary">Batal</button>
+                    <button id="cancel-btn" class="btn btn-secondary" type="button">Batal</button>
+                    <button id="download-btn" class="btn btn-secondary" type="button" title="Unduh HTML" aria-label="Unduh HTML">Unduh</button>
                     <button type="submit" class="btn">Simpan</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <input type="file" id="file-input" accept=".html,.htm" style="display:none" />
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const grid = document.getElementById('presentations-grid');
-            const addNewBtn = document.getElementById('add-new-btn');
-            const modal = document.getElementById('editor-modal');
-            const form = document.getElementById('presentation-form');
-            const cancelBtn = document.getElementById('cancel-btn');
-            const modalTitle = document.getElementById('modal-title');
-            const presentationIdInput = document.getElementById('presentation-id');
-            const presentationTitleInput = document.getElementById('presentation-title');
-            const cardTemplate = document.getElementById('presentation-card-template');
-            
-            let codeEditor;
-            let presentations = [];
-            const STORAGE_KEY = 'html_presentations_app';
+    (function () {
+        // --- Elemen DOM utama
+        const grid = document.getElementById('presentations-grid');
+        const addNewBtn = document.getElementById('add-new-btn');
+        const importBtn = document.getElementById('import-btn');
+        const modal = document.getElementById('editor-modal');
+        const form = document.getElementById('presentation-form');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const modalTitle = document.getElementById('modal-title');
+        const presentationIdInput = document.getElementById('presentation-id');
+        const presentationTitleInput = document.getElementById('presentation-title');
+        const cardTemplate = document.getElementById('presentation-card-template');
+        const fileInput = document.getElementById('file-input');
+        const downloadBtn = document.getElementById('download-btn');
 
-            // Inisialisasi editor
-            function initializeCodeEditor() {
-                const textarea = document.getElementById('presentation-code');
-                if (!codeEditor) {
-                    codeEditor = CodeMirror.fromTextArea(textarea, {
-                        mode: 'htmlmixed',
-                        theme: 'material-darker',
-                        lineNumbers: true,
-                        lineWrapping: true,
-                        autoCloseTags: true
-                    });
-                }
+        const STORAGE_KEY = 'html_presentations_app_v1';
+        let codeEditor = null;
+        let presentations = [];
+
+        // --- Inisialisasi CodeMirror (pastikan dijalankan setelah library dimuat)
+        function initializeCodeEditor() {
+            if (codeEditor) return;
+            const textarea = document.getElementById('presentation-code');
+            // Safety: jika CodeMirror belum tersedia (mis. CDN gagal), fallback ke textarea biasa
+            if (typeof CodeMirror === 'undefined') {
+                console.warn('CodeMirror tidak tersedia — fallback ke textarea biasa.');
+                codeEditor = {
+                    getValue: () => textarea.value,
+                    setValue: (v) => { textarea.value = v; },
+                    refresh: () => {},
+                };
+                return;
             }
+            codeEditor = CodeMirror.fromTextArea(textarea, {
+                mode: 'htmlmixed',
+                theme: 'material-darker',
+                lineNumbers: true,
+                lineWrapping: true,
+                autoCloseTags: true
+            });
+            // adapt ukuran awal
+            setTimeout(() => { try { codeEditor.refresh(); } catch (e) {} }, 50);
+        }
 
-            // Manajemen Data
-            const savePresentations = () => {
-                try {
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(presentations));
-                } catch (e) {
-                    alert("Gagal menyimpan: penyimpanan penuh!");
-                    console.error(e);
-                }
-            };
-            const loadPresentations = () => {
-                try {
-                    presentations = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-                } catch (e) {
-                    presentations = [];
-                }
-            };
-            const findPresentationById = (id) => presentations.find(p => p.id === id);
-
-            // Render
-            const renderPresentations = () => {
-                grid.innerHTML = '';
-                if (presentations.length === 0) {
-                    grid.innerHTML = `<div id="empty-state"><p>Anda belum memiliki presentasi.<br>Klik "Buat Presentasi Baru" untuk memulai!</p></div>`;
-                    return;
-                }
-                presentations.sort((a, b) => b.lastModified - a.lastModified);
-                presentations.forEach(p => {
-                    const cardClone = cardTemplate.content.cloneNode(true);
-                    const cardElement = cardClone.querySelector('.presentation-card');
-                    cardElement.dataset.id = p.id;
-                    cardElement.querySelector('.card-title').textContent = p.title;
-                    cardElement.querySelector('.card-date').textContent = `Diperbarui: ${new Date(p.lastModified).toLocaleString('id-ID')}`;
-                    grid.appendChild(cardElement);
+        // --- Local storage management
+        function savePresentations() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(presentations));
+            } catch (e) {
+                console.error('Gagal menyimpan ke localStorage:', e);
+                alert('Gagal menyimpan presentasi: penyimpanan penuh atau tidak diizinkan.');
+            }
+        }
+        function loadPresentations() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                const parsed = raw ? JSON.parse(raw) : [];
+                // Normalisasi bentuk data: pastikan lastModified/createdAt adalah Number
+                presentations = (Array.isArray(parsed) ? parsed : []).map(p => {
+                    return {
+                        id: String(p.id ?? (`pres-${Date.now()}-${Math.random().toString(36).slice(2)}`)),
+                        title: String(p.title ?? 'Tanpa Judul'),
+                        html: String(p.html ?? ''),
+                        createdAt: Number(p.createdAt ?? Date.now()),
+                        lastModified: Number(p.lastModified ?? (p.createdAt ?? Date.now()))
+                    };
                 });
-            };
+            } catch (e) {
+                console.warn('Gagal membaca localStorage, reset list:', e);
+                presentations = [];
+            }
+        }
+        function findPresentationById(id) {
+            return presentations.find(p => String(p.id) === String(id));
+        }
 
-            // Modal
-            const openModal = (presentation = null) => {
-                form.reset();
-                document.getElementById('presentation-code').value = ""; // reset textarea juga
-                if (presentation) {
-                    modalTitle.textContent = 'Edit Presentasi';
-                    presentationIdInput.value = presentation.id;
-                    presentationTitleInput.value = presentation.title;
-                    codeEditor.setValue(presentation.html);
-                } else {
-                    modalTitle.textContent = 'Buat Presentasi Baru';
-                    presentationIdInput.value = '';
-                    codeEditor.setValue(`<!DOCTYPE html>
-<html lang="en">
+        // --- Render grid
+        function renderPresentations() {
+            grid.innerHTML = '';
+            if (!presentations || presentations.length === 0) {
+                grid.innerHTML = `<div id="empty-state"><p>Anda belum memiliki presentasi.<br>Klik "Buat Presentasi Baru" untuk memulai!</p></div>`;
+                return;
+            }
+            // sort descending by lastModified (normalisasi jadi Number)
+            presentations.sort((a, b) => Number(b.lastModified) - Number(a.lastModified));
+            presentations.forEach(p => {
+                const clone = cardTemplate.content.cloneNode(true);
+                const card = clone.querySelector('.presentation-card');
+                if (!card) return;
+                card.dataset.id = p.id;
+                const titleEl = card.querySelector('.card-title');
+                const dateEl = card.querySelector('.card-date');
+                if (titleEl) titleEl.textContent = p.title;
+                if (dateEl) {
+                    const dt = Number(p.lastModified) ? new Date(Number(p.lastModified)) : new Date();
+                    try {
+                        dateEl.textContent = `Diperbarui: ${dt.toLocaleString('id-ID')}`;
+                    } catch (err) {
+                        dateEl.textContent = `Diperbarui: ${dt.toString()}`;
+                    }
+                }
+                grid.appendChild(clone);
+            });
+        }
+
+        // --- Modal handling
+        function openModal(presentation=null) {
+            // Pastikan editor siap
+            initializeCodeEditor();
+
+            // Reset form keadaan lalu isi
+            form.reset();
+            presentationIdInput.value = '';
+            presentationTitleInput.value = '';
+            // kosongkan CodeMirror (jika ada)
+            try { codeEditor.setValue(''); } catch (e) { /* ignore */ }
+
+            if (presentation) {
+                modalTitle.textContent = 'Edit Presentasi';
+                presentationIdInput.value = presentation.id;
+                presentationTitleInput.value = presentation.title;
+                try { codeEditor.setValue(presentation.html || ''); } catch (e) { document.getElementById('presentation-code').value = presentation.html || ''; }
+            } else {
+                modalTitle.textContent = 'Buat Presentasi Baru';
+                const starter = `<!DOCTYPE html>
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <title>Judul Presentasi</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding-top: 50px; }
+        body { font-family: sans-serif; text-align:center; padding:40px; }
     </style>
 </head>
 <body>
     <h1>Slide Pertama</h1>
     <p>Mulai tulis konten presentasi Anda di sini.</p>
 </body>
-</html>`);
-                }
-                modal.classList.add('visible');
-                setTimeout(() => codeEditor.refresh(), 1);
-            };
-            const closeModal = () => modal.classList.remove('visible');
-
-            // Validasi HTML minimal
-            function isValidHtml(html) {
-                return html.trim().length > 0 && /<\/html>/i.test(html);
+</html>`;
+                try { codeEditor.setValue(starter); } catch (e) { document.getElementById('presentation-code').value = starter; }
             }
 
-            // Event Handlers
-            addNewBtn.addEventListener('click', () => openModal());
-            cancelBtn.addEventListener('click', closeModal);
-            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+            modal.classList.add('visible');
+            modal.setAttribute('aria-hidden','false');
+            // fokus ke judul
+            setTimeout(() => {
+                try { codeEditor.refresh(); } catch (e) {}
+                presentationTitleInput.focus();
+            }, 100);
+            // add ESC close
+            document.addEventListener('keydown', handleKeyDown);
+            // trap scroll on body (simple)
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal() {
+            modal.classList.remove('visible');
+            modal.setAttribute('aria-hidden','true');
+            document.removeEventListener('keydown', handleKeyDown);
+            document.body.style.overflow = '';
+        }
+        function handleKeyDown(e) {
+            if (e.key === 'Escape') closeModal();
+        }
 
-            form.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const id = presentationIdInput.value;
-                const title = presentationTitleInput.value.trim();
-                const html = codeEditor.getValue();
-                const now = Date.now();
+        // --- Minimal HTML validation
+        function isValidHtml(html) {
+            if (!html || typeof html !== 'string') return false;
+            const trimmed = html.trim();
+            if (trimmed.length === 0) return false;
+            // Accept if contains basic html root tag
+            return /<\s*html[\s>]/i.test(trimmed) && /<\/\s*html\s*>/i.test(trimmed);
+        }
 
-                if (!title) {
-                    alert('Judul tidak boleh kosong!');
-                    return;
-                }
-                if (!isValidHtml(html)) {
-                    alert('Kode HTML tidak valid atau kosong.');
-                    return;
-                }
-
-                if (id) {
-                    const existing = findPresentationById(id);
-                    if (existing) {
-                        existing.title = title;
-                        existing.html = html;
-                        existing.lastModified = now;
+        // --- Import file (optional)
+        importBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (ev) => {
+            const f = ev.target.files && ev.target.files[0];
+            if (!f) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                openModal();
+                setTimeout(() => {
+                    try { codeEditor.setValue(String(e.target.result || '')); } catch (err) {
+                        document.getElementById('presentation-code').value = String(e.target.result || '');
                     }
+                }, 200);
+            };
+            reader.readAsText(f, 'utf-8');
+            // reset input so user bisa impor file sama lagi
+            fileInput.value = '';
+        });
+
+        // --- Event listeners
+        addNewBtn.addEventListener('click', () => openModal());
+        cancelBtn.addEventListener('click', closeModal);
+        closeModalBtn.addEventListener('click', closeModal);
+
+        // Klik di luar modal (overlay) menutup modal
+        modal.addEventListener('click', (ev) => {
+            if (ev.target === modal) closeModal();
+        });
+
+        // Submit form: simpan / update
+        form.addEventListener('submit', (ev) => {
+            ev.preventDefault();
+            const id = presentationIdInput.value && String(presentationIdInput.value);
+            const title = (presentationTitleInput.value || '').trim();
+            const html = (codeEditor && typeof codeEditor.getValue === 'function') ? codeEditor.getValue() : document.getElementById('presentation-code').value;
+            const now = Date.now();
+
+            if (!title) {
+                alert('Judul tidak boleh kosong!');
+                presentationTitleInput.focus();
+                return;
+            }
+            if (!isValidHtml(html)) {
+                const ok = confirm('Teks yang Anda masukkan tampak bukan dokumen HTML lengkap. Tetap simpan? (Pilih "Batal" untuk periksa kembali)');
+                if (!ok) return;
+            }
+
+            if (id) {
+                const existing = findPresentationById(id);
+                if (existing) {
+                    existing.title = title;
+                    existing.html = String(html);
+                    existing.lastModified = now;
                 } else {
-                    presentations.push({ 
-                        id: `pres-${now}-${Math.random().toString(36).slice(2)}`, 
-                        title, html, createdAt: now, lastModified: now 
+                    // fallback bila id tidak ditemukan: buat baru
+                    presentations.push({
+                        id,
+                        title,
+                        html: String(html),
+                        createdAt: now,
+                        lastModified: now
                     });
                 }
+            } else {
+                presentations.push({
+                    id: `pres-${now}-${Math.random().toString(36).slice(2)}`,
+                    title,
+                    html: String(html),
+                    createdAt: now,
+                    lastModified: now
+                });
+            }
 
+            savePresentations();
+            renderPresentations();
+            closeModal();
+        });
+
+        // Grid click (delegation)
+        grid.addEventListener('click', (ev) => {
+            const btn = ev.target.closest('button');
+            const card = ev.target.closest('.presentation-card');
+            if (!card || !btn) return;
+            const action = btn.dataset.action;
+            const id = card.dataset.id;
+            const p = findPresentationById(id);
+            if (!p) return;
+
+            if (action === 'view') {
+                // buka di tab baru sebagai Blob URL; revoke setelah tab ditutup
+                try {
+                    const blob = new Blob([p.html], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    // buka window baru, kemudian set opener null untuk keamanan
+                    const newWin = window.open('', '_blank');
+                    if (newWin) {
+                        try { newWin.opener = null; } catch (e) { /* ignore if not allowed */ }
+                        newWin.location = url;
+                        // cek periodik sampai closed, lalu revoke
+                        const revoker = setInterval(() => {
+                            if (newWin.closed) {
+                                URL.revokeObjectURL(url);
+                                clearInterval(revoker);
+                            }
+                        }, 500);
+                        // fallback revoke setelah timeout 2 menit jika user tidak menutup
+                        setTimeout(() => {
+                            try { URL.revokeObjectURL(url); } catch (e) {}
+                            clearInterval(revoker);
+                        }, 120000);
+                    } else {
+                        // jika popup diblokir (newWin null), fallback: buka dalam same tab (confirm)
+                        const proceed = confirm('Popup diblokir. Buka presentasi di tab yang sama sekarang? (Anda akan meninggalkan dashboard)');
+                        if (proceed) {
+                            window.location.href = url;
+                        } else {
+                            URL.revokeObjectURL(url);
+                        }
+                    }
+                } catch (err) {
+                    console.error('Gagal membuka presentasi:', err);
+                    alert('Gagal membuka presentasi (lihat console).');
+                }
+            } else if (action === 'edit') {
+                openModal(p);
+            } else if (action === 'delete') {
+                const ok = confirm(`Apakah Anda yakin ingin menghapus "${p.title}"?`);
+                if (!ok) return;
+                presentations = presentations.filter(x => String(x.id) !== String(id));
                 savePresentations();
                 renderPresentations();
-                closeModal();
-            });
+            }
+        });
 
-            grid.addEventListener('click', (e) => {
-                const card = e.target.closest('.presentation-card');
-                if (!card) return;
-                const action = e.target.dataset.action;
-                const id = card.dataset.id;
-                const presentation = findPresentationById(id);
-                if (!presentation) return;
+        // Download current content (dalam modal)
+        downloadBtn.addEventListener('click', () => {
+            const html = (codeEditor && typeof codeEditor.getValue === 'function') ? codeEditor.getValue() : document.getElementById('presentation-code').value;
+            if (!html || !html.trim()) { alert('Tidak ada konten untuk diunduh.'); return; }
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = (presentationTitleInput.value || 'presentation') + '.html';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            // revoke after singkat
+            setTimeout(() => { try { URL.revokeObjectURL(url); } catch (e) {} }, 1000);
+        });
 
-                if (action === 'view') {
-                    const blob = new Blob([presentation.html], { type: 'text/html' });
-                    const url = URL.createObjectURL(blob);
-                    const newWin = window.open(url, '_blank');
-                    if (newWin) {
-                        newWin.addEventListener("unload", () => URL.revokeObjectURL(url));
-                    }
-                }
-                if (action === 'edit') openModal(presentation);
-                if (action === 'delete') {
-                    if (confirm(`Apakah Anda yakin ingin menghapus "${presentation.title}"?`)) {
-                        presentations = presentations.filter(p => p.id !== id);
-                        savePresentations();
-                        renderPresentations();
-                    }
-                }
-            });
+        // Double-click card to quick-open view
+        grid.addEventListener('dblclick', (ev) => {
+            const card = ev.target.closest('.presentation-card');
+            if (!card) return;
+            const id = card.dataset.id;
+            const p = findPresentationById(id);
+            if (!p) return;
+            // reuse view action
+            const event = new Event('click', { bubbles: true });
+            const btnView = card.querySelector('button[data-action="view"]');
+            if (btnView) btnView.dispatchEvent(event);
+        });
 
-            // Eksekusi awal
+        // --- Initial load
+        // Wait until DOM + CodeMirror scripts loaded. CodeMirror loaded with defer; but we still call initialize on DOMContentLoaded.
+        document.addEventListener('DOMContentLoaded', () => {
             initializeCodeEditor();
             loadPresentations();
             renderPresentations();
         });
+
+        // Expose small debug on window for developer convenience (non-blocking)
+        window._presentations_app = {
+            getAll: () => presentations,
+            saveNow: savePresentations,
+            resetAll: () => { presentations = []; savePresentations(); renderPresentations(); }
+        };
+    })();
     </script>
 </body>
 </html>
