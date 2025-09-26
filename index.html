@@ -14,7 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/htmlmixed/htmlmixed.min.js"></script>
 
     <style>
-        /* Desain Modern & Minimalis */
+        /* Desain Modern & Minimalis (Tidak ada perubahan di sini) */
         :root {
             --bg-color: #1a1a1a;
             --surface-color: #242424;
@@ -25,221 +25,39 @@
             --danger-color: #e24a4a;
             --danger-hover-color: #f25a5a;
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html, body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 1rem;
-        }
-
-        header h1 {
-            font-size: 2rem;
-            color: var(--text-color);
-        }
-
-        .btn {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.1s ease;
-        }
-
-        .btn:hover {
-            background-color: var(--primary-hover-color);
-            transform: translateY(-2px);
-        }
-        
-        .btn-danger {
-            background-color: var(--danger-color);
-        }
-        .btn-danger:hover {
-            background-color: var(--danger-hover-color);
-        }
-
-        .btn-secondary {
-            background-color: #444;
-        }
-        .btn-secondary:hover {
-            background-color: #555;
-        }
-
-        #presentations-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .presentation-card {
-            background-color: var(--surface-color);
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .presentation-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-
-        .card-content {
-            flex-grow: 1;
-        }
-
-        .card-content h3 {
-            font-size: 1.25rem;
-            margin-bottom: 0.5rem;
-            word-break: break-word;
-        }
-
-        .card-content p {
-            font-size: 0.9rem;
-            color: #aaa;
-        }
-
-        .card-actions {
-            margin-top: 1.5rem;
-            display: flex;
-            gap: 0.75rem;
-            border-top: 1px solid var(--border-color);
-            padding-top: 1rem;
-        }
-
-        .card-actions .btn {
-            flex-grow: 1;
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
-        }
-
-        /* Modal Editor */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-            z-index: 1000;
-        }
-
-        .modal-overlay.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal-container {
-            background-color: var(--surface-color);
-            padding: 2rem;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 1000px;
-            height: 90vh;
-            display: flex;
-            flex-direction: column;
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-            overflow-y: auto; /* <-- PERBAIKAN DI SINI */
-        }
-
-        .modal-overlay.visible .modal-container {
-            transform: scale(1);
-        }
-
-        .modal-header {
-            margin-bottom: 1rem;
-        }
-        
-        .modal-header h2 {
-            font-size: 1.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 0.75rem;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background-color: #333;
-            color: var(--text-color);
-            font-size: 1rem;
-        }
-        
-        .editor-container {
-            flex-grow: 1;
-            position: relative;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            overflow: hidden;
-            /* Memberikan tinggi minimum agar tidak terlalu gepeng di layar pendek */
-            min-height: 200px; 
-        }
-
-        .CodeMirror {
-            height: 100%;
-            font-size: 16px;
-        }
-
-        .modal-footer {
-            margin-top: 1.5rem;
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-        }
-        
-        #empty-state {
-            text-align: center;
-            padding: 4rem;
-            border: 2px dashed var(--border-color);
-            border-radius: 12px;
-            grid-column: 1 / -1;
-        }
-        #empty-state p {
-            font-size: 1.2rem;
-            color: #aaa;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
+        header h1 { font-size: 2rem; color: var(--text-color); }
+        .btn { background-color: var(--primary-color); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; }
+        .btn:hover { background-color: var(--primary-hover-color); transform: translateY(-2px); }
+        .btn-danger { background-color: var(--danger-color); }
+        .btn-danger:hover { background-color: var(--danger-hover-color); }
+        .btn-secondary { background-color: #444; }
+        .btn-secondary:hover { background-color: #555; }
+        #presentations-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        .presentation-card { background-color: var(--surface-color); border-radius: 12px; border: 1px solid var(--border-color); padding: 1.5rem; display: flex; flex-direction: column; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .presentation-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .card-content { flex-grow: 1; }
+        .card-content h3 { font-size: 1.25rem; margin-bottom: 0.5rem; word-break: break-word; }
+        .card-content p { font-size: 0.9rem; color: #aaa; }
+        .card-actions { margin-top: 1.5rem; display: flex; gap: 0.75rem; border-top: 1px solid var(--border-color); padding-top: 1rem; }
+        .card-actions .btn { flex-grow: 1; padding: 0.5rem 1rem; font-size: 0.9rem; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; z-index: 1000; }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
+        .modal-container { background-color: var(--surface-color); padding: 2rem; border-radius: 12px; width: 90%; max-width: 1000px; height: 90vh; display: flex; flex-direction: column; transform: scale(0.9); transition: transform 0.3s ease; overflow-y: auto; /* Perbaikan Scroll */ }
+        .modal-overlay.visible .modal-container { transform: scale(1); }
+        .modal-header { margin-bottom: 1rem; }
+        .modal-header h2 { font-size: 1.5rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+        .form-group input { width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border-color); background-color: #333; color: var(--text-color); font-size: 1rem; }
+        .editor-container { flex-grow: 1; position: relative; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; min-height: 200px; }
+        .CodeMirror { height: 100%; font-size: 16px; }
+        .modal-footer { margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem; }
+        #empty-state { text-align: center; padding: 4rem; border: 2px dashed var(--border-color); border-radius: 12px; grid-column: 1 / -1; }
+        #empty-state p { font-size: 1.2rem; color: #aaa; }
     </style>
 </head>
 <body>
@@ -272,7 +90,7 @@
             <div class="modal-header">
                 <h2 id="modal-title">Buat Presentasi Baru</h2>
             </div>
-            <form id="presentation-form" style="display: flex; flex-direction: column; height: 100%;">
+            <div id="presentation-form" style="display: flex; flex-direction: column; height: 100%;">
                 <input type="hidden" id="presentation-id">
                 <div class="form-group">
                     <label for="presentation-title">Judul Presentasi</label>
@@ -286,9 +104,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" id="cancel-btn" class="btn btn-secondary">Batal</button>
-                    <button type="submit" class="btn">Simpan</button>
-                </div>
-            </form>
+                    <button type="button" id="save-btn" class="btn">Simpan</button> </div>
+            </div>
         </div>
     </div>
 
@@ -299,104 +116,73 @@
             const grid = document.getElementById('presentations-grid');
             const addNewBtn = document.getElementById('add-new-btn');
             const modal = document.getElementById('editor-modal');
-            const form = document.getElementById('presentation-form');
             const cancelBtn = document.getElementById('cancel-btn');
+            const saveBtn = document.getElementById('save-btn'); // <-- BARU: Ambil tombol simpan
             const modalTitle = document.getElementById('modal-title');
             const presentationIdInput = document.getElementById('presentation-id');
             const presentationTitleInput = document.getElementById('presentation-title');
             const cardTemplate = document.getElementById('presentation-card-template');
             
-            let codeEditor; // Variabel untuk menyimpan instance CodeMirror
+            let codeEditor;
 
             // --- STATE APLIKASI ---
             let presentations = [];
             const STORAGE_KEY = 'html_presentations_app';
 
-            // --- INISIALISASI EDITOR KODE ---
+            // --- FUNGSI EDITOR KODE ---
             function initializeCodeEditor() {
                 const textarea = document.getElementById('presentation-code');
                 if (!codeEditor) {
                      codeEditor = CodeMirror.fromTextArea(textarea, {
-                        mode: 'htmlmixed',
-                        theme: 'material-darker',
-                        lineNumbers: true,
-                        lineWrapping: true,
-                        autoCloseTags: true
+                        mode: 'htmlmixed', theme: 'material-darker', lineNumbers: true, lineWrapping: true, autoCloseTags: true
                     });
                 }
             }
 
             // --- FUNGSI MANAJEMEN DATA ---
-            const savePresentations = () => {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(presentations));
-            };
-
-            const loadPresentations = () => {
-                const data = localStorage.getItem(STORAGE_KEY);
-                presentations = data ? JSON.parse(data) : [];
-            };
-
+            const savePresentations = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(presentations));
+            const loadPresentations = () => { presentations = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; };
             const findPresentationById = (id) => presentations.find(p => p.id === id);
 
             // --- FUNGSI RENDER TAMPILAN ---
             const renderPresentations = () => {
-                grid.innerHTML = ''; // Kosongkan grid sebelum render
-                
+                grid.innerHTML = '';
                 if (presentations.length === 0) {
-                    grid.innerHTML = `
-                        <div id="empty-state">
-                            <p>Anda belum memiliki presentasi. <br> Klik "Buat Presentasi Baru" untuk memulai!</p>
-                        </div>
-                    `;
+                    grid.innerHTML = `<div id="empty-state"><p>Anda belum memiliki presentasi. <br> Klik "Buat Presentasi Baru" untuk memulai!</p></div>`;
                     return;
                 }
-
-                presentations.sort((a, b) => b.lastModified - a.lastModified); // Tampilkan yang terbaru di atas
-
+                presentations.sort((a, b) => b.lastModified - a.lastModified);
                 presentations.forEach(p => {
                     const cardClone = cardTemplate.content.cloneNode(true);
                     const cardElement = cardClone.querySelector('.presentation-card');
-                    
                     cardElement.dataset.id = p.id;
                     cardElement.querySelector('.card-title').textContent = p.title;
                     cardElement.querySelector('.card-date').textContent = `Diperbarui: ${new Date(p.lastModified).toLocaleString('id-ID')}`;
-
                     grid.appendChild(cardElement);
                 });
             };
 
             // --- FUNGSI MODAL ---
             const openModal = (presentation = null) => {
-                form.reset();
+                document.getElementById('presentation-form').reset(); // Menggunakan form ID untuk reset
                 if (presentation) {
-                    // Mode Edit
                     modalTitle.textContent = 'Edit Presentasi';
                     presentationIdInput.value = presentation.id;
                     presentationTitleInput.value = presentation.title;
                     codeEditor.setValue(presentation.html);
                 } else {
-                    // Mode Tambah Baru
                     modalTitle.textContent = 'Buat Presentasi Baru';
                     presentationIdInput.value = '';
                     codeEditor.setValue('<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <title>Judul Presentasi</title>\n    <style>\n        body { font-family: sans-serif; text-align: center; padding-top: 50px; }\n    </style>\n</head>\n<body>\n    <h1>Slide Pertama</h1>\n    <p>Mulai tulis konten presentasi Anda di sini.</p>\n</body>\n</html>');
                 }
                 modal.classList.add('visible');
-                setTimeout(() => codeEditor.refresh(), 1); // Refresh editor agar tampil benar
+                setTimeout(() => codeEditor.refresh(), 1);
             };
 
-            const closeModal = () => {
-                modal.classList.remove('visible');
-            };
-
-            // --- EVENT HANDLERS ---
-            addNewBtn.addEventListener('click', () => openModal());
-            cancelBtn.addEventListener('click', closeModal);
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) closeModal(); // Tutup modal jika klik di luar area konten
-            });
-
-            form.addEventListener('submit', (e) => {
-                e.preventDefault();
+            const closeModal = () => modal.classList.remove('visible');
+            
+            // --- FUNGSI UNTUK MENYIMPAN PERUBAHAN ---
+            const handleSaveChanges = () => {
                 const id = presentationIdInput.value;
                 const title = presentationTitleInput.value.trim();
                 const html = codeEditor.getValue();
@@ -408,7 +194,6 @@
                 }
 
                 if (id) {
-                    // Update presentasi yang ada
                     const existingPresentation = findPresentationById(id);
                     if (existingPresentation) {
                         existingPresentation.title = title;
@@ -416,26 +201,23 @@
                         existingPresentation.lastModified = now;
                     }
                 } else {
-                    // Tambah presentasi baru
-                    const newPresentation = {
-                        id: `pres-${now}`,
-                        title,
-                        html,
-                        createdAt: now,
-                        lastModified: now
-                    };
-                    presentations.push(newPresentation);
+                    presentations.push({ id: `pres-${now}`, title, html, createdAt: now, lastModified: now });
                 }
 
                 savePresentations();
                 renderPresentations();
-                closeModal();
-            });
+                closeModal(); // Otomatis kembali ke home screen
+            };
+
+            // --- EVENT HANDLERS ---
+            addNewBtn.addEventListener('click', () => openModal());
+            cancelBtn.addEventListener('click', closeModal);
+            saveBtn.addEventListener('click', handleSaveChanges); // <-- PERBAIKAN: Event listener langsung pada tombol simpan
+            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
             grid.addEventListener('click', (e) => {
                 const card = e.target.closest('.presentation-card');
                 if (!card) return;
-
                 const action = e.target.dataset.action;
                 const id = card.dataset.id;
                 const presentation = findPresentationById(id);
@@ -445,15 +227,10 @@
                     const blob = new Blob([presentation.html], { type: 'text/html' });
                     const url = URL.createObjectURL(blob);
                     window.open(url, '_blank');
-                    // URL.revokeObjectURL(url); // Dihapus agar link tetap berfungsi jika di-bookmark
                 }
-
-                if (action === 'edit') {
-                    openModal(presentation);
-                }
-
+                if (action === 'edit') openModal(presentation);
                 if (action === 'delete') {
-                    if (confirm(`Apakah Anda yakin ingin menghapus "${presentation.title}"? Aksi ini tidak bisa dibatalkan.`)) {
+                    if (confirm(`Apakah Anda yakin ingin menghapus "${presentation.title}"?`)) {
                         presentations = presentations.filter(p => p.id !== id);
                         savePresentations();
                         renderPresentations();
