@@ -1,231 +1,502 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Presentasi HTML</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Dashboard Presentasi — Perbaikan Save Robust</title>
 
-  <!-- CodeMirror -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/material-darker.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/htmlmixed/htmlmixed.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/closetag.min.js"></script>
+<!-- CSS minimal + theme -->
+<style>
+  :root{
+    --bg:#111;
+    --surface:#222;
+    --muted:#9aa;
+    --primary:#4a90e2;
+    --danger:#e24a4a;
+    --border:#333;
+    --text:#eaeaea;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;}
+  .container{max-width:1100px;margin:0 auto;padding:1rem;}
+  header{display:flex;justify-content:space-between;align-items:center;gap:.5rem;border-bottom:1px solid var(--border);padding-bottom:.75rem;margin-bottom:1rem}
+  h1{font-size:1.15rem}
+  .btn{background:var(--primary);color:white;border:0;padding:.5rem .75rem;border-radius:8px;cursor:pointer}
+  .btn-secondary{background:#444}
+  #presentations-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem}
+  .card{background:var(--surface);padding:.9rem;border-radius:10px;border:1px solid var(--border);display:flex;flex-direction:column;min-height:110px}
+  .card h3{margin:0 0 .25rem 0;font-size:1rem}
+  .card p{margin:0;color:var(--muted);font-size:.85rem}
+  .actions{display:flex;gap:.5rem;margin-top:.6rem}
+  .actions .btn{flex:1;padding:.45rem}
 
-  <style>
-    :root {
-      --bg-color:#1a1a1a;
-      --surface-color:#242424;
-      --primary-color:#4a90e2;
-      --primary-hover:#5aa1f2;
-      --danger:#e24a4a;
-      --danger-hover:#f25a5a;
-      --text:#e0e0e0;
-      --border:#3a3a3a;
-    }
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg-color);color:var(--text);line-height:1.6;}
-
-    .container{max-width:1200px;margin:0 auto;padding:1rem;}
-    header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;padding-bottom:.5rem;margin-bottom:1rem;border-bottom:1px solid var(--border);}
-    header h1{font-size:1.4rem;}
-    .btn{background:var(--primary-color);color:#fff;border:none;padding:.6rem 1rem;border-radius:6px;cursor:pointer;font-size:.95rem;transition:.2s;}
-    .btn:hover{background:var(--primary-hover)}
-    .btn-secondary{background:#444;}
-    .btn-secondary:hover{background:#555}
-    .btn-danger{background:var(--danger);}
-    .btn-danger:hover{background:var(--danger-hover)}
-
-    #presentations-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem;}
-    .presentation-card{background:var(--surface-color);border:1px solid var(--border);border-radius:10px;padding:1rem;display:flex;flex-direction:column;}
-    .card-content{flex:1}
-    .card-title{font-size:1rem;margin-bottom:.3rem;}
-    .card-date{font-size:.8rem;color:#aaa;}
-    .card-actions{display:flex;gap:.5rem;margin-top:.7rem}
-    .card-actions .btn{flex:1;font-size:.8rem;padding:.5rem}
-
-    /* Modal */
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;justify-content:center;align-items:center;opacity:0;visibility:hidden;transition:.25s;z-index:1000;}
-    .modal-overlay.visible{opacity:1;visibility:visible;}
-    .modal-container{background:var(--surface-color);border-radius:10px;width:95%;max-width:900px;max-height:95vh;display:flex;flex-direction:column;overflow-y:auto;padding:1rem;position:relative;}
-    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem}
-    .modal-header h2{font-size:1.2rem;}
-    .close-btn{background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;}
-
-    .form-group{margin-bottom:1rem;}
-    .form-group label{display:block;margin-bottom:.3rem;font-weight:600}
-    .form-group input{width:100%;padding:.6rem;border:1px solid var(--border);border-radius:6px;background:#333;color:var(--text);}
-
-    .editor-container{flex:1;border:1px solid var(--border);border-radius:6px;min-height:200px;overflow:auto;}
-    .CodeMirror{height:100%;min-height:200px;font-size:14px;}
-    .modal-footer{margin-top:1rem;display:flex;justify-content:flex-end;gap:.5rem;flex-wrap:wrap;}
-    #empty-state{text-align:center;padding:2rem;border:2px dashed var(--border);border-radius:10px;grid-column:1/-1;color:#aaa;}
-
-    @media(max-width:600px){
-      header{flex-direction:column;align-items:flex-start;gap:.5rem}
-      .modal-container{padding:.6rem;}
-      .modal-footer{flex-direction:column;align-items:stretch;}
-      .modal-footer .btn{width:100%;}
-    }
-  </style>
+  /* Modal */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;justify-content:center;align-items:center;padding:12px;visibility:hidden;opacity:0;transition:.18s}
+  .overlay.visible{visibility:visible;opacity:1}
+  .modal{width:100%;max-width:980px;background:var(--surface);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;max-height:95vh;border:1px solid var(--border)}
+  .modal-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border)}
+  .modal-body{padding:12px 14px;display:flex;flex-direction:column;gap:10px;flex:1;min-height:0;overflow:auto}
+  .modal-footer{display:flex;gap:.5rem;justify-content:flex-end;padding:10px 14px;border-top:1px solid var(--border);background:linear-gradient(to top, rgba(0,0,0,.03), transparent)}
+  .form-group label{display:block;margin-bottom:6px;font-weight:600}
+  input[type="text"]{width:100%;padding:.6rem;border-radius:8px;border:1px solid var(--border);background:#111;color:var(--text)}
+  /* editor container flexible and scrollable */
+  .editor-wrapper{flex:1;min-height:160px;border:1px solid var(--border);border-radius:8px;overflow:auto}
+  /* simple toast */
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#0b8b3a;color:#fff;padding:.5rem .9rem;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.5);display:none}
+  .toast.show{display:block}
+  @media(max-width:600px){
+    .modal-footer{flex-direction:column;align-items:stretch}
+    .modal{max-width:100%}
+  }
+  /* minimal CodeMirror height rule */
+  .CodeMirror{height:100%}
+</style>
 </head>
 <body>
   <div class="container">
     <header>
       <h1>Presentasi Lokal Anda</h1>
-      <button id="add-new" class="btn" type="button">Buat Baru</button>
+      <div style="display:flex;gap:.5rem">
+        <button id="btn-new" class="btn" type="button">Buat Presentasi Baru</button>
+      </div>
     </header>
-    <main id="presentations-grid"></main>
+
+    <main id="presentations-grid" aria-live="polite">
+      <!-- cards -->
+    </main>
   </div>
 
-  <template id="card-template">
-    <div class="presentation-card">
-      <div class="card-content">
-        <h3 class="card-title"></h3>
-        <p class="card-date"></p>
+  <!-- template -->
+  <template id="tpl-card">
+    <article class="card" tabindex="0">
+      <div>
+        <h3 class="title"></h3>
+        <p class="date"></p>
       </div>
-      <div class="card-actions">
-        <button class="btn-secondary btn" data-action="edit" type="button">Edit</button>
-        <button class="btn" data-action="view" type="button">Buka</button>
-        <button class="btn-danger btn" data-action="delete" type="button">Hapus</button>
+      <div class="actions">
+        <button data-action="edit" class="btn-secondary btn" type="button">Edit</button>
+        <button data-action="view" class="btn btn-primary btn" type="button">Buka</button>
+        <button data-action="delete" class="btn-danger btn" type="button">Hapus</button>
       </div>
-    </div>
+    </article>
   </template>
 
-  <!-- Modal -->
-  <div id="editor-modal" class="modal-overlay">
-    <div class="modal-container">
+  <!-- modal -->
+  <div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal" role="document">
       <div class="modal-header">
-        <h2 id="modal-title">Buat Presentasi</h2>
-        <button class="close-btn" id="close-modal" aria-label="Tutup">&times;</button>
+        <strong id="modal-title">Buat Presentasi</strong>
+        <div>
+          <button id="close" class="btn-secondary btn" type="button">Tutup</button>
+        </div>
       </div>
-      <form id="form" style="display:flex;flex-direction:column;flex:1;min-height:0;">
-        <input type="hidden" id="presentation-id">
-        <div class="form-group">
-          <label for="title">Judul</label>
-          <input type="text" id="title" required placeholder="Contoh: Laporan Q4">
+
+      <form id="form" style="display:flex;flex-direction:column;height:100%">
+        <input type="hidden" id="presentation-id" value="">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="title">Judul Presentasi</label>
+            <input id="title" type="text" placeholder="Contoh: Laporan Q4" required>
+          </div>
+
+          <div style="display:flex;flex-direction:column;flex:1;min-height:0">
+            <label for="code">Kode HTML Lengkap</label>
+            <div class="editor-wrapper" id="editor-wrapper">
+              <textarea id="code" spellcheck="false" style="width:100%;height:100%;min-height:180px;padding:10px;background:#0b0b0b;color:var(--text);border:0;resize:vertical"></textarea>
+            </div>
+          </div>
         </div>
-        <div class="form-group" style="flex:1;display:flex;flex-direction:column;min-height:0;">
-          <label for="code">Kode HTML</label>
-          <div class="editor-container"><textarea id="code"></textarea></div>
-        </div>
+
         <div class="modal-footer">
-          <button type="button" class="btn-secondary btn" id="cancel">Batal</button>
-          <button type="submit" class="btn">Simpan</button>
+          <button id="btn-cancel" type="button" class="btn-secondary btn">Batal</button>
+          <button id="btn-download" type="button" class="btn-secondary btn">Unduh</button>
+          <button id="btn-save" type="submit" class="btn">Simpan</button>
         </div>
       </form>
     </div>
   </div>
 
+  <div id="toast" class="toast">Tersimpan</div>
+
 <script>
-document.addEventListener("DOMContentLoaded",()=>{
-  const STORAGE_KEY="presentations_v2";
-  let presentations=[];
-  let editor;
+(function(){
+  // -------------------------
+  // Config / State
+  // -------------------------
+  const STORAGE_KEY = 'html_presentations_safe_v1';
+  let presentations = [];
+  let editor = null;           // CodeMirror instance OR null
+  let codemirrorLoaded = false;
+  const CDN_BASE = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15';
 
-  const grid=document.getElementById("presentations-grid");
-  const addBtn=document.getElementById("add-new");
-  const modal=document.getElementById("editor-modal");
-  const closeBtn=document.getElementById("close-modal");
-  const cancelBtn=document.getElementById("cancel");
-  const form=document.getElementById("form");
-  const titleInput=document.getElementById("title");
-  const idInput=document.getElementById("presentation-id");
-  const codeArea=document.getElementById("code");
-  const cardTemplate=document.getElementById("card-template");
+  // -------------------------
+  // DOM refs
+  // -------------------------
+  const grid = document.getElementById('presentations-grid');
+  const tplCard = document.getElementById('tpl-card');
+  const btnNew = document.getElementById('btn-new');
+  const overlay = document.getElementById('overlay');
+  const closeBtn = document.getElementById('close');
+  const form = document.getElementById('form');
+  const titleInput = document.getElementById('title');
+  const codeTextarea = document.getElementById('code');
+  const editorWrapper = document.getElementById('editor-wrapper');
+  const presentationIdInput = document.getElementById('presentation-id');
+  const toast = document.getElementById('toast');
+  const btnCancel = document.getElementById('btn-cancel');
+  const btnDownload = document.getElementById('btn-download');
 
-  function initEditor(){
-    if(editor) return;
-    editor=CodeMirror.fromTextArea(codeArea,{
-      mode:"htmlmixed",
-      theme:"material-darker",
-      lineNumbers:true,
-      lineWrapping:true,
-      autoCloseTags:true
+  // -------------------------
+  // Utilities
+  // -------------------------
+  function dbg(...args){ console.debug('[PRES]', ...args); }
+  function showToast(msg='Tersimpan', t=1300){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(()=> toast.classList.remove('show'), t);
+  }
+
+  // Safe loader for CSS
+  function loadCSS(href){
+    return new Promise((resolve,reject)=>{
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = href;
+      link.onload = ()=> resolve();
+      link.onerror = ()=> reject(new Error('CSS load failed '+href));
+      document.head.appendChild(link);
+    });
+  }
+  // Safe loader for JS
+  function loadScript(src){
+    return new Promise((resolve,reject)=>{
+      const s = document.createElement('script');
+      s.src = src;
+      s.async = false; // preserve order
+      s.onload = ()=> resolve();
+      s.onerror = ()=> reject(new Error('Script load failed '+src));
+      document.head.appendChild(s);
     });
   }
 
-  function openModal(pres=null){
-    form.reset();
-    idInput.value="";
-    initEditor();
-    editor.setValue("");
-    if(pres){
-      document.getElementById("modal-title").textContent="Edit Presentasi";
-      idInput.value=pres.id;
-      titleInput.value=pres.title;
-      editor.setValue(pres.html);
-    }else{
-      document.getElementById("modal-title").textContent="Buat Presentasi";
-      editor.setValue("<!DOCTYPE html>\n<html>\n<head>\n<meta charset='utf-8'>\n<title>Judul</title>\n</head>\n<body>\n<h1>Slide Pertama</h1>\n</body>\n</html>");
-    }
-    modal.classList.add("visible");
-    setTimeout(()=>editor.refresh(),50);
-  }
-  function closeModal(){modal.classList.remove("visible")}
-
-  function save(){
-    const id=idInput.value;
-    const title=titleInput.value.trim();
-    const html=editor.getValue();
-    if(!title){alert("Judul kosong");return;}
-    const now=Date.now();
-    if(id){
-      let p=presentations.find(x=>x.id===id);
-      if(p){p.title=title;p.html=html;p.lastModified=now;}
-    }else{
-      presentations.push({id:"p-"+now,title,html,lastModified:now});
-    }
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(presentations));
-    render();
-    closeModal();
-  }
-
-  function render(){
-    grid.innerHTML="";
-    if(!presentations.length){
-      grid.innerHTML="<div id='empty-state'>Belum ada presentasi</div>";
+  // Ensure CodeMirror and modes loaded (idempotent)
+  async function ensureCodeMirror(){
+    if (codemirrorLoaded) return;
+    if (window.CodeMirror){
+      codemirrorLoaded = true;
+      dbg('CodeMirror already present');
       return;
     }
-    presentations.sort((a,b)=>b.lastModified-a.lastModified);
+    try {
+      dbg('Loading CodeMirror assets from CDN...');
+      // CSS
+      await loadCSS(CDN_BASE + '/codemirror.min.css');
+      await loadCSS(CDN_BASE + '/theme/material-darker.min.css');
+      // core + modes + addon
+      await loadScript(CDN_BASE + '/codemirror.min.js');
+      await loadScript(CDN_BASE + '/mode/xml/xml.min.js');
+      await loadScript(CDN_BASE + '/mode/javascript/javascript.min.js');
+      await loadScript(CDN_BASE + '/mode/css/css.min.js');
+      await loadScript(CDN_BASE + '/mode/htmlmixed/htmlmixed.min.js');
+      await loadScript(CDN_BASE + '/addon/edit/closetag.min.js');
+      codemirrorLoaded = true;
+      dbg('CodeMirror loaded');
+    } catch (err) {
+      console.warn('Gagal load CodeMirror dari CDN, fallback ke textarea.', err);
+      codemirrorLoaded = false;
+      // we continue: editor will remain null and fallback used
+    }
+  }
+
+  // Initialize editor instance (if codemirror available)
+  function initEditorInstance(){
+    if (editor) return editor;
+    if (window.CodeMirror){
+      try {
+        editor = CodeMirror.fromTextArea(codeTextarea, {
+          mode: 'htmlmixed',
+          theme: 'material-darker',
+          lineNumbers: true,
+          lineWrapping: true,
+          autoCloseTags: true
+        });
+        // make editor fill wrapper
+        editor.getWrapperElement().style.height = '100%';
+        setTimeout(()=>{ try{ editor.refresh(); }catch(e){} },80);
+        dbg('Editor instance created');
+      } catch (err){
+        console.error('Gagal inisialisasi CodeMirror, fallback ke textarea', err);
+        editor = null;
+      }
+    } else {
+      dbg('CodeMirror tidak tersedia; menggunakan textarea biasa');
+      editor = null;
+    }
+    return editor;
+  }
+
+  // Get content safely from editor or textarea
+  function getEditorContent(){
+    try {
+      if (editor && typeof editor.getValue === 'function'){
+        return editor.getValue();
+      } else {
+        return codeTextarea.value;
+      }
+    } catch (err) {
+      console.error('Error when getting editor content:', err);
+      // fallback to textarea
+      return codeTextarea.value || '';
+    }
+  }
+
+  // Set content safely
+  function setEditorContent(value){
+    try {
+      if (editor && typeof editor.setValue === 'function'){
+        editor.setValue(value);
+        setTimeout(()=>{ try{ editor.refresh(); }catch(e){} },50);
+      } else {
+        codeTextarea.value = value;
+      }
+    } catch (err) {
+      console.error('Error when setting editor content:', err);
+      codeTextarea.value = value;
+    }
+  }
+
+  // -------------------------
+  // Storage
+  // -------------------------
+  function loadFromStorage(){
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      presentations = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(presentations)) presentations = [];
+      // normalize numbers
+      presentations = presentations.map(p => ({
+        id: String(p.id || `pres-${Date.now()}-${Math.random().toString(36).slice(2)}`),
+        title: String(p.title || 'Tanpa Judul'),
+        html: String(p.html || ''),
+        createdAt: Number(p.createdAt || Date.now()),
+        lastModified: Number(p.lastModified || (p.createdAt || Date.now()))
+      }));
+    } catch (err) {
+      console.warn('Load storage failed, starting empty', err);
+      presentations = [];
+    }
+  }
+  function saveToStorage(){
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(presentations));
+      dbg('Saved to localStorage', presentations.length, 'items');
+    } catch (err) {
+      console.error('Gagal simpan ke localStorage', err);
+      alert('Gagal menyimpan: penyimpanan penuh atau dibatasi.');
+    }
+  }
+
+  // -------------------------
+  // Render
+  // -------------------------
+  function render(){
+    grid.innerHTML = '';
+    if (!presentations || presentations.length === 0){
+      grid.innerHTML = `<div style="padding:20px;border:1px dashed var(--border);border-radius:8px;color:var(--muted)">Belum ada presentasi — klik "Buat Presentasi Baru"</div>`;
+      return;
+    }
+    presentations.sort((a,b)=>Number(b.lastModified)-Number(a.lastModified));
     presentations.forEach(p=>{
-      const card=cardTemplate.content.cloneNode(true);
-      card.querySelector(".card-title").textContent=p.title;
-      card.querySelector(".card-date").textContent="Update: "+new Date(p.lastModified).toLocaleString();
-      const el=card.querySelector(".presentation-card");
-      el.dataset.id=p.id;
-      grid.appendChild(card);
+      const c = tplCard.content.cloneNode(true);
+      const article = c.querySelector('.card');
+      c.querySelector('.title').textContent = p.title;
+      c.querySelector('.date').textContent = 'Diperbarui: ' + new Date(Number(p.lastModified)).toLocaleString();
+      article.dataset.id = p.id;
+      grid.appendChild(c);
     });
   }
 
-  grid.addEventListener("click",e=>{
-    const btn=e.target.closest("button");
-    if(!btn) return;
-    const card=btn.closest(".presentation-card");
-    const id=card.dataset.id;
-    const p=presentations.find(x=>x.id===id);
-    if(!p) return;
-    if(btn.dataset.action==="edit") openModal(p);
-    if(btn.dataset.action==="delete"){
-      if(confirm("Hapus?")){presentations=presentations.filter(x=>x.id!==id);localStorage.setItem(STORAGE_KEY,JSON.stringify(presentations));render();}
+  // -------------------------
+  // Modal control
+  // -------------------------
+  async function openModal(p=null){
+    // load CodeMirror assets (non-blocking if CDN fails)
+    await ensureCodeMirror();
+    initEditorInstance();
+
+    // reset form
+    form.reset();
+    presentationIdInput.value = '';
+    setEditorContent(''); // clear
+
+    if (p){
+      document.getElementById('modal-title').textContent = 'Edit Presentasi';
+      presentationIdInput.value = p.id;
+      titleInput.value = p.title;
+      setEditorContent(p.html);
+    } else {
+      document.getElementById('modal-title').textContent = 'Buat Presentasi Baru';
+      titleInput.value = '';
+      setEditorContent(`<!DOCTYPE html>
+<html lang="id">
+<head><meta charset="utf-8"><title>Judul Presentasi</title></head>
+<body>
+  <h1>Slide Pertama</h1>
+  <p>Mulai tulis konten Anda di sini.</p>
+</body>
+</html>`);
     }
-    if(btn.dataset.action==="view"){
-      const blob=new Blob([p.html],{type:"text/html"});
-      const url=URL.createObjectURL(blob);
-      window.open(url,"_blank");
-      setTimeout(()=>URL.revokeObjectURL(url),2000);
+
+    overlay.classList.add('visible');
+    overlay.setAttribute('aria-hidden','false');
+
+    // allow editor to refresh (mobile)
+    setTimeout(()=>{ try{ if (editor && editor.refresh) editor.refresh(); }catch(e){} }, 150);
+
+    // focus judul
+    setTimeout(()=> titleInput.focus(), 80);
+    // disable page scroll behind (but modal remains scrollable)
+    document.documentElement.style.overflow = 'hidden';
+  }
+
+  function closeModal(){
+    overlay.classList.remove('visible');
+    overlay.setAttribute('aria-hidden','true');
+    document.documentElement.style.overflow = '';
+  }
+
+  // -------------------------
+  // Handlers
+  // -------------------------
+  // Grid actions (delegation)
+  grid.addEventListener('click', async (ev) => {
+    const btn = ev.target.closest('button');
+    if (!btn) return;
+    const card = ev.target.closest('.card');
+    if (!card) return;
+    const id = card.dataset.id;
+    const p = presentations.find(x => String(x.id) === String(id));
+    if (!p) return;
+    const action = btn.dataset.action;
+    if (action === 'edit') {
+      await openModal(p);
+    } else if (action === 'delete') {
+      if (confirm(`Hapus "${p.title}" ?`)){
+        presentations = presentations.filter(x => String(x.id) !== String(id));
+        saveToStorage(); render();
+      }
+    } else if (action === 'view') {
+      try {
+        const blob = new Blob([p.html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const nw = window.open('', '_blank');
+        if (nw){
+          try{ nw.opener = null; } catch(e){}
+          nw.location = url;
+          // revoke later
+          const t = setInterval(()=>{ if (nw.closed){ URL.revokeObjectURL(url); clearInterval(t); } }, 500);
+          setTimeout(()=>{ try{ URL.revokeObjectURL(url); }catch(e){} }, 120000);
+        } else {
+          // popup blocked: open same tab
+          if (confirm('Popup diblokir. Buka di tab saat ini? (Anda akan meninggalkan dashboard)')) location.href = url;
+          else URL.revokeObjectURL(url);
+        }
+      } catch (err) {
+        console.error('Gagal membuka presentasi', err);
+        alert('Gagal membuka presentasi (lihat console).');
+      }
     }
   });
 
-  form.addEventListener("submit",e=>{e.preventDefault();save()});
-  addBtn.addEventListener("click",()=>openModal());
-  closeBtn.addEventListener("click",closeModal);
-  cancelBtn.addEventListener("click",closeModal);
+  // open new
+  btnNew.addEventListener('click', ()=> openModal());
 
-  // init
-  try{presentations=JSON.parse(localStorage.getItem(STORAGE_KEY))||[]}catch{presentations=[]}
-  render();
-});
+  // close handlers
+  closeBtn.addEventListener('click', closeModal);
+  btnCancel.addEventListener('click', closeModal);
+  overlay.addEventListener('click', (ev)=> { if (ev.target === overlay) closeModal(); });
+
+  // download current HTML
+  btnDownload.addEventListener('click', ()=> {
+    try {
+      const html = getEditorContent();
+      if (!html || !html.trim()){ alert('Tidak ada konten untuk diunduh'); return; }
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = (titleInput.value || 'presentation') + '.html';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>{ try{ URL.revokeObjectURL(url);}catch(e){} }, 1000);
+    } catch (err) {
+      console.error('Download error', err);
+      alert('Gagal mengunduh (lihat console).');
+    }
+  });
+
+  // Submit (Simpan) — robust with try/catch
+  form.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    dbg('submit handler triggered');
+    try {
+      const id = presentationIdInput.value && String(presentationIdInput.value);
+      const title = (titleInput.value || '').trim();
+      const html = getEditorContent();
+      if (!title){
+        alert('Judul tidak boleh kosong');
+        titleInput.focus();
+        return;
+      }
+      // minimal HTML check: if missing </html>, warn
+      if (!/<\/\s*html\s*>/i.test(html)){
+        if (!confirm('Konten tampak bukan dokumen HTML lengkap (tidak menemukan </html>). Tetap simpan?')) return;
+      }
+      const now = Date.now();
+      if (id){
+        const existing = presentations.find(x => String(x.id) === String(id));
+        if (existing){
+          existing.title = title;
+          existing.html = html;
+          existing.lastModified = now;
+        } else {
+          presentations.push({ id, title, html, createdAt: now, lastModified: now });
+        }
+      } else {
+        presentations.push({ id: 'pres-' + now + '-' + Math.random().toString(36).slice(2), title, html, createdAt: now, lastModified: now });
+      }
+      saveToStorage();
+      render();
+      closeModal();
+      showToast('Tersimpan');
+    } catch (err) {
+      console.error('Error in submit handler', err);
+      alert('Terjadi kesalahan saat menyimpan. Periksa console untuk detail.');
+    }
+  });
+
+  // keyboard ESC close
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (overlay.classList.contains('visible')) closeModal(); } });
+
+  // -------------------------
+  // Init
+  // -------------------------
+  (async function init(){
+    loadFromStorage();
+    render();
+    // Try to pre-load CodeMirror but do not fail if blocked
+    ensureCodeMirror().then(()=> {
+      try {
+        initEditorInstance();
+      } catch(e){
+        dbg('early initEditorInstance failed', e);
+      }
+    }).catch(e => { dbg('ensureCodeMirror finished (error or fallback)'); });
+  })();
+
+  // Expose for debugging
+  window.__PRESENTATION_APP = { getAll: ()=>presentations, saveToStorage, openModal, closeModal, dbg };
+
+})();
 </script>
 </body>
 </html>
